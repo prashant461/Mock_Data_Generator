@@ -5,7 +5,9 @@ import com.tcs.mock_data_generator.model.Column;
 import com.tcs.mock_data_generator.service.DataGeneratorService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,6 +44,9 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
                     case "Time":
                         str += getRandomTimeFromRange(column.getDataPattern().getStartTime(), column.getDataPattern().getEndTime());
                         break;
+                    case "Date":
+                        str += getRandomDateBetween(column.getDataPattern().getStartDate(), column.getDataPattern().getEndDate());
+                        break;
                     default:
                         throw new RuntimeException("No such Domain type exists: " + column.getDomainType());
                 }
@@ -57,6 +62,23 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
     private int generateIntegerFromRange(int start, int end) {
         // Generate a random integer between start (inclusive) and end (inclusive)
         return random.nextInt(start, end+1);
+    }
+
+    public LocalDate getRandomDateBetween(LocalDate startDate, LocalDate endDate) {
+        // Ensure the endDate is after the startDate
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("End date must be after start date.");
+        }
+
+        // Calculate the number of days between the start and end dates
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+
+        // Generate a random number of days to add to the startDate
+        Random random = new Random();
+        long randomDays = random.nextLong(daysBetween + 1); // +1 to include endDate
+
+        // Add the random number of days to the startDate
+        return startDate.plusDays(randomDays);
     }
 
     private LocalTime getRandomTimeFromRange(String start, String end) {
