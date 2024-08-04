@@ -1,5 +1,5 @@
 package com.tcs.mock_data_generator.model;
 
 public enum PatternEnum {
-    INCREASING, DECREASING, RANDOM, DOW, DOM, DOWDOM
+    DEFAULT, INCREASING, DECREASING, INCREASE_BY_OFFSET, DOW, DOM, DOW_DOM
 }

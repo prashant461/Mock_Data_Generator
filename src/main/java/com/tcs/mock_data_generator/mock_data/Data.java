@@ -67,17 +67,17 @@ public class Data {
         cities.addAll(Arrays.asList(names));
     }
 
-    public String getFirstNames() {
+    public String getFirstName() {
         int index = (int) (Math.random()*100);
         return firstNames.get(index);
     }
 
-    public String getLastNames() {
+    public String getLastName() {
         int index = (int) (Math.random()*100);
         return lastNames.get(index);
     }
 
-    public String getCities() {
+    public String getCity() {
         int index = (int) (Math.random()*100);
         return cities.get(index);
     }

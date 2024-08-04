@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -15,4 +16,7 @@ public class DataPattern {
     private String endTime;
     private LocalDate startDate;
     private LocalDate endDate;
+    private int intOffset;
+    private LocalTime timeOffset;
+    private LocalDate dateOffset;
 }

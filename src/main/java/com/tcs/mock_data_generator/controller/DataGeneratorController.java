@@ -29,8 +29,10 @@ public class DataGeneratorController {
                     "   - age(0, 150)\n" +
                     "   - empId(111111, 999999)\n" +
                     "   - pinCode(400000, 900000)\n" +
-                    "5) Time in particular range\n" +
-                    "6) Date in particular range"
+                    "5) Time\n" +
+                    "6) Date\n" +
+                    "Note: for Integer, Time and Date\n" +
+                    "we have Domain Type : DEFAULT, INCREASING, DECREASING, INCREASE_BY_OFFSET"
     )
     @PostMapping("/generate")
     public List<List<String>> generator(
