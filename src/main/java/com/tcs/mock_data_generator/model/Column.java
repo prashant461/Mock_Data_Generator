@@ -12,10 +12,11 @@ import lombok.Setter;
 public class Column {
     private String columnName;
     private String domainType;
+    private String stringValue;
+    private String prefix;
+    private String suffix;
+    private int decimalForDouble;
+
+    private String[] valuesForBoolean;
     private DataPattern dataPattern;
-
-
-    /*
-    add other field such as range for integer,
-     */
 }

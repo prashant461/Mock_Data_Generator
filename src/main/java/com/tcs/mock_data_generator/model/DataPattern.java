@@ -12,11 +12,21 @@ public class DataPattern {
     private PatternEnum patternName;
     private int startRange;
     private int endRange;
+    private int intOffset;
+
+    private double startDouble;
+    private double endDouble;
+    private double doubleOffset;
+
     private String startTime;
     private String endTime;
+    private String timeOffset;
+
     private LocalDate startDate;
     private LocalDate endDate;
-    private int intOffset;
-    private LocalTime timeOffset;
     private LocalDate dateOffset;
+
+    private String startDateTime;
+    private String endDateTime;
+    private String dateTimeOffset;
 }

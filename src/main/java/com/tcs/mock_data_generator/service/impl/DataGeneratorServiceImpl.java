@@ -7,7 +7,10 @@ import com.tcs.mock_data_generator.service.DataGeneratorService;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.Random;
 @Component
 public class DataGeneratorServiceImpl implements DataGeneratorService {
     Random random = new Random();
-
+    String randomString = "aBzCdeFgHiJkLmNoPqRsTuVwXyZaBcDeFgHiJkLmNoPqRsTuVwXyZaBcDeFgHiJkLmNoPqRsTuVwXyZaBcD";
     Data data = new Data();
 
     @Override
@@ -34,13 +37,130 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
                 case "FirstName" -> getFirstNames(generatedData, noOfData);
                 case "LastName" -> getLastNames(generatedData, noOfData);
                 case "City" -> getCities(generatedData, noOfData);
+                case "String" -> getStringData(generatedData, noOfData);
+                case "SameString" -> getSameStringData(generatedData, noOfData, column.getStringValue());
+                case "StringWithPrefixAndSuffix" -> getStringWithPrefixAndSuffixData(generatedData, noOfData, column.getPrefix(), column.getSuffix());
+                case "Boolean" -> getBooleanData(generatedData, noOfData, column.getValuesForBoolean());
                 case "Integer" -> getIntegerData(generatedData, column.getDataPattern(), noOfData);
+                case "Double" -> getDoubleData(generatedData, column.getDataPattern(), column.getDecimalForDouble(), noOfData);
                 case "Time" -> getTimeData(generatedData, column.getDataPattern(), noOfData);
                 case "Date" -> getDateData(generatedData, column.getDataPattern(), noOfData);
+                case "Timestamp" -> getTimestamp(generatedData, column.getDataPattern(), noOfData);
                 default -> throw new RuntimeException("No such Domain type exists: " + column.getDomainType());
             }
         }
         return generatedData;
+    }
+    private void getTimestamp(List<List<String>> generatedData, DataPattern dataPattern, int noOfData) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // Parse the start and end timestamps from the pattern
+        LocalDateTime startDateTime = LocalDateTime.parse(dataPattern.getStartDateTime(), formatter);
+        LocalDateTime endDateTime = LocalDateTime.parse(dataPattern.getEndDateTime(), formatter);
+
+        // Convert LocalDateTime to epoch seconds
+        long startEpochSeconds = startDateTime.toEpochSecond(ZoneOffset.UTC);
+        long endEpochSeconds = endDateTime.toEpochSecond(ZoneOffset.UTC);
+//        System.out.println(startEpochSeconds + " " + endEpochSeconds);
+
+        for (int i = 1; i <= noOfData; i++) {
+            long newEpochSeconds;
+            switch (dataPattern.getPatternName()) {
+                case INCREASING -> {
+                    newEpochSeconds = startEpochSeconds + random.nextLong(endEpochSeconds - startEpochSeconds);
+                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(newEpochSeconds, 0, ZoneOffset.UTC);
+                    generatedData.get(i).add(dateTime+"");
+                    startEpochSeconds = newEpochSeconds;
+                }
+                case DECREASING -> {
+                    newEpochSeconds = endEpochSeconds - random.nextLong(endEpochSeconds - startEpochSeconds);
+                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(newEpochSeconds, 0, ZoneOffset.UTC);
+                    generatedData.get(i).add(dateTime+"");
+                    endEpochSeconds = newEpochSeconds;
+                }
+                case INCREASE_BY_OFFSET -> {
+                    LocalDateTime offsetDateTime = LocalDateTime.parse(dataPattern.getDateTimeOffset(), formatter);
+                    long offsetSeconds = offsetDateTime.toEpochSecond(ZoneOffset.UTC);
+//                    long offsetSeconds = offsetDateTime.toEpochSecond(ZoneOffset.UTC) + LocalDateTime.of(1970, 1, 1, 5, 30).toEpochSecond(ZoneOffset.UTC);
+                    System.out.println(offsetDateTime+" offset "+ offsetSeconds);
+                    newEpochSeconds = startEpochSeconds + offsetSeconds;
+                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(newEpochSeconds, 0, ZoneOffset.UTC);
+                    generatedData.get(i).add(dateTime+"");
+                    startEpochSeconds = newEpochSeconds;
+                }
+                default -> {
+                    newEpochSeconds = random.nextLong(startEpochSeconds, endEpochSeconds);
+                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(newEpochSeconds, 0, ZoneOffset.UTC);
+                    generatedData.get(i).add(dateTime+"");
+                }
+            }
+        }
+    }
+
+    private void getStringWithPrefixAndSuffixData(List<List<String>> generatedData, int noOfData, String prefix, String suffix) {
+        int len = randomString.length();
+        for(int i=1;i<=noOfData;i++) {
+            int index = random.nextInt(0, len-3);
+            generatedData.get(i).add(prefix + randomString.substring(index, index+3)+suffix);
+        }
+    }
+
+    private void getDoubleData(List<List<String>> generatedData, DataPattern dataPattern, int decimalForDouble, int noOfData) {
+        String format = "%." + decimalForDouble + "f";
+        switch (dataPattern.getPatternName()) {
+            case INCREASING -> {
+                double prev = dataPattern.getStartDouble();
+                double end = dataPattern.getEndDouble();
+                for(int i=1;i<=noOfData;i++) {
+                    prev = random.nextDouble(prev, end);
+                    generatedData.get(i).add(String.format(format, prev));
+                }
+            }
+            case DECREASING -> {
+                double prev = dataPattern.getEndDouble();
+                double start = dataPattern.getStartDouble();
+                for(int i=1;i<=noOfData;i++) {
+                    prev = random.nextDouble(start, prev);
+                    generatedData.get(i).add(String.format(format, prev));
+                }
+            }
+            case INCREASE_BY_OFFSET -> {
+                double start = dataPattern.getStartDouble();
+                double offset = dataPattern.getDoubleOffset();
+                for(int i=1;i<=noOfData;i++) {
+                    generatedData.get(i).add(String.format(format, start));
+                    start += offset;
+                }
+            }
+            default -> {
+                for(int i=1;i<=noOfData;i++) {
+                    double d = random.nextDouble(dataPattern.getStartDouble(), dataPattern.getEndDouble());
+                    generatedData.get(i).add(String.format(format, d));
+                }
+            }
+        }
+    }
+
+    private void getSameStringData(List<List<String>> generatedData, int noOfData, String stringValue) {
+        for(int i=1;i<=noOfData;i++) {
+            generatedData.get(i).add(stringValue);
+        }
+    }
+
+    private void getStringData(List<List<String>> generatedData, int noOfData) {
+        int len = randomString.length();
+        for(int i=1;i<=noOfData;i++) {
+            int index = random.nextInt(0, len-3);
+            generatedData.get(i).add(randomString.substring(index, index+3));
+        }
+    }
+
+    private void getBooleanData(List<List<String>> generatedData, int noOfData, String[] valuesForBoolean) {
+        int size = valuesForBoolean.length;
+        for(int i=1;i<=noOfData;i++) {
+            int index = random.nextInt(0, size);
+            generatedData.get(i).add(valuesForBoolean[index]);
+        }
     }
 
     private void getDateData(List<List<String>> generatedData, DataPattern dataPattern, int noOfData) {
@@ -108,7 +228,7 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
                     endSeconds = newSeconds;
                 }
                 case INCREASE_BY_OFFSET -> {
-                    LocalTime time = dataPattern.getTimeOffset();
+                    LocalTime time = convertTimeToLocalTime(dataPattern.getTimeOffset());
                     int offset = time.getHour() * 60 * 60 + time.getMinute() * 60 + time.getSecond();
                     newSeconds = startSeconds + offset;
                     startSeconds = newSeconds;

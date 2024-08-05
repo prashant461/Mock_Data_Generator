@@ -24,15 +24,15 @@ public class DataGeneratorController {
                     "1) FirstName\n" +
                     "2) LastName\n" +
                     "3) City\n" +
-                    "4) Integer in particular range\n" +
-                    "   e.g., 1111 to 9999\n" +
-                    "   - age(0, 150)\n" +
-                    "   - empId(111111, 999999)\n" +
-                    "   - pinCode(400000, 900000)\n" +
-                    "5) Time\n" +
-                    "6) Date\n" +
-                    "Note: for Integer, Time and Date\n" +
-                    "we have Domain Type : DEFAULT, INCREASING, DECREASING, INCREASE_BY_OFFSET"
+                    "4) String\n" +
+                    "5) SameString\n" +
+                    "6) StringWithPrefixAndSuffix\n" +
+                    "7) Boolean\n" +
+                    "8) Integer\n" +
+                    "9) Double\n" +
+                    "10) Time\n" +
+                    "11) Date\n" +
+                    "[Domain Type: DEFAULT, INCREASING, DECREASING, INCREASE_BY_OFFSET]"
     )
     @PostMapping("/generate")
     public List<List<String>> generator(
