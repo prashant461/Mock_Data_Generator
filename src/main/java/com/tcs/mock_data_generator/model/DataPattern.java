@@ -28,5 +28,8 @@ public class DataPattern {
 
     private String startDateTime;
     private String endDateTime;
-    private String dateTimeOffset;
+//    private String dateTimeOffset;
+    private int offsetDays;
+    private int offsetMonths;
+    private int offsetYears;
 }

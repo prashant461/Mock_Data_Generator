@@ -79,14 +79,15 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
                     endEpochSeconds = newEpochSeconds;
                 }
                 case INCREASE_BY_OFFSET -> {
-                    LocalDateTime offsetDateTime = LocalDateTime.parse(dataPattern.getDateTimeOffset(), formatter);
-                    long offsetSeconds = offsetDateTime.toEpochSecond(ZoneOffset.UTC);
-//                    long offsetSeconds = offsetDateTime.toEpochSecond(ZoneOffset.UTC) + LocalDateTime.of(1970, 1, 1, 5, 30).toEpochSecond(ZoneOffset.UTC);
-                    System.out.println(offsetDateTime+" offset "+ offsetSeconds);
-                    newEpochSeconds = startEpochSeconds + offsetSeconds;
-                    LocalDateTime dateTime = LocalDateTime.ofEpochSecond(newEpochSeconds, 0, ZoneOffset.UTC);
-                    generatedData.get(i).add(dateTime+"");
-                    startEpochSeconds = newEpochSeconds;
+                    LocalTime offsetTime = LocalTime.parse(dataPattern.getTimeOffset(), DateTimeFormatter.ofPattern("HH:mm:ss"));
+                    LocalDateTime newDateTime = startDateTime.plusSeconds(offsetTime.getSecond())
+                            .plusMinutes(offsetTime.getMinute())
+                                    .plusHours(offsetTime.getHour())
+                                            .plusDays(dataPattern.getOffsetDays())
+                                                    .plusMonths(dataPattern.getOffsetMonths())
+                                                            .plusYears(dataPattern.getOffsetYears());
+                    generatedData.get(i).add(newDateTime+"");
+                    startDateTime = newDateTime;
                 }
                 default -> {
                     newEpochSeconds = random.nextLong(startEpochSeconds, endEpochSeconds);
@@ -216,6 +217,7 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
 //         Convert the times to seconds
         int startSeconds = startTime.getHour() * 60 * 60 + startTime.getMinute() * 60 + startTime.getSecond();
         int endSeconds = endTime.getHour() * 60 * 60 + endTime.getMinute() * 60 + startTime.getSecond();
+        System.out.println(startSeconds + " "+ endSeconds);
         int newSeconds = 0;
         for(int i=1;i<=noOfData;i++) {
             switch (dataPattern.getPatternName()) {
